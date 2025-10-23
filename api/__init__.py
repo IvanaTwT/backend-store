@@ -30,7 +30,6 @@ def init_app():
 
     # app.register_blueprint(errors, url_prefix = '/errors')
     app.register_blueprint(user_bp, url_prefix = '')
-    app.register_blueprint(user_bp, url_prefix = '')
     app.register_blueprint(product_bp, url_prefix = '/products')
     app.register_blueprint(domi_bp, url_prefix = '/addresses')
     
