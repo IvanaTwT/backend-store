@@ -15,6 +15,7 @@ class Usuario:
         else:
             self.password=kwargs.get('password')
         self.admin=  kwargs.get('admin')
+        self.inhabilitado=  kwargs.get('inhabilitado')
     
     def serialize(self):
         return {
@@ -22,7 +23,8 @@ class Usuario:
             "username":self.username,
             "email": self.email,
             "password": self.password,            
-            "admin": self.admin
+            "admin": self.admin,
+            "inhabilitado":self.inhabilitado
         }
     # Función para verificar que el usuario exista en la base de datos
     @classmethod
@@ -31,7 +33,7 @@ class Usuario:
         VERIFICAR QUE EL USUARIO SEA VALIDO (en bd)
         """
         #Comprobar si el usuario se encuentra alojado en la base de datos
-        query = """SELECT user_id, username, email, password, admin FROM ecommerce.usuario 
+        query = """SELECT user_id, username, email, password, admin, inhabilitado FROM ecommerce.usuario 
         WHERE username = %(username)s and password = %(password)s"""
         params = usuario.__dict__
         result = DatabaseConnection.fetch_one(query, params=params)
@@ -42,7 +44,8 @@ class Usuario:
                             username = result[1],                        
                             email = result[2],
                             password= result[3],
-                            admin = result[4]
+                            admin = result[4],
+                            inhabilitado= result[5]
                         )
         return None
     
@@ -58,14 +61,15 @@ class Usuario:
                             username = result[1],                        
                             email = result[2],
                             password= result[3],
-                            admin = result[4]
+                            admin = result[4],
+                            inhabilitado=result[5]
                         )
         return None
     
     @classmethod
     def get_by_id(cls, user_id):
         """Traer a un usuario por su id"""
-        sql="""SELECT user_id, username, email, password, admin FROM ecommerce.usuario WHERE user_id=%s"""
+        sql="""SELECT user_id, username, email, password, admin,inhabilitado FROM ecommerce.usuario WHERE user_id=%s"""
         result= DatabaseConnection.fetch_one(query=sql, params=(user_id,))
         
         if result:
@@ -74,7 +78,8 @@ class Usuario:
                             username = result[1],                        
                             email = result[2],
                             password= result[3],
-                            admin = result[4]
+                            admin = result[4],
+                            inhabilitado=result[5]
                         )
         return None
     @classmethod
@@ -93,7 +98,8 @@ class Usuario:
                                 username = user[1],                        
                                 email = user[2],
                                 password= user[3],
-                                admin = user[4]
+                                admin = user[4],
+                                inhabilitado=user[5]
                             ).serialize()
                 usuarios.append(usuario)
             return usuarios
@@ -130,6 +136,11 @@ class Usuario:
         sql+=" WHERE user_id = '%s'"
         print("mensaje SQL ",sql)
         DatabaseConnection.execute_query(query=sql,params=(id,))
+        
+    @classmethod
+    def update_inhabilitado(cls, usuario):
+        sql="""UPDATE usuario SET inhabilitado=1 WHERE user_id=%(user_id)s"""
+        DatabaseConnection.execute_query(query=sql,params=usuario.__dict__)
 
     @classmethod
     def delete(cls,usuario):

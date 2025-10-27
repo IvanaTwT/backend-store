@@ -1,5 +1,6 @@
 from ..models.user_model import Usuario, hash_string
 from ..models.cliente_model import Cliente
+from ..models.carrito_model import Carrito
 from config import Config    #traer clave secreta
 from flask import request, session, jsonify
 import datetime as dt
@@ -21,18 +22,22 @@ class UserController:
         # print("USER: ",user.serialize())
         user_verify=Usuario.verify_user(user)
         if user_verify:
-            session['username'] = data.get('username')
-            session['admin'] = user_verify.admin
-            session['user_id'] = user_verify.user_id
-            token_user= Token.get_tokens_by_user(user.user_id)
-            # print(type(token_user))
-            if(token_user):
-                return jsonify({"token": token_user.token}), 200 
+            # print("verificado: ",user_verify.serialize())
+            if int(user_verify.inhabilitado)==0:
+                session['username'] = data.get('username')
+                session['admin'] = user_verify.admin
+                session['user_id'] = user_verify.user_id
+                token_user= Token.get_tokens_by_user(user_verify.user_id)
+                # print(type(token_user))
+                if(token_user):
+                    return jsonify({"token": token_user.token}), 200 
+                else:
+                    token = Token.create_token(user_verify.user_id)
+                    return jsonify({"token": token}), 200 
             else:
-                token = Token.create_token(user_verify.user_id)
-                return jsonify({"token": token}), 200    
+                return jsonify({"error":"Usuario dado de baja"}),200
         else:
-            return jsonify({"message": "Usuario o contraseña incorrectos"}), 401
+            return jsonify({"error": "Usuario o contraseña incorrectos"}), 200
         
     @classmethod
     def ver_users(cls):
@@ -127,7 +132,7 @@ class UserController:
         print("new_id: ",new_id)
         cliente= Cliente(user_id=new_id,**data)
         response = Cliente.create_client(cliente)#devuleve el id creado
-        # crear carrito
+        cart= Carrito.create(Carrito(id_cliente=response))
         if response:
             return {"message":"Usuario creado con exito"} ,200   
         return {"error":"Error al crear usuario"},400
@@ -169,23 +174,25 @@ class UserController:
     def delete_user(cls,user_id):
         verify_user= UserController.verify_authentication()
         is_admin=verify_user["user_id"]["admin"]
+        user=Usuario(user_id=user_id)
         if is_admin and user_id:            
-            #solo el administrador puede eliminar usuario en caso de cambiar administrador
-            user=Usuario(user_id=user_id)
+            #solo el administrador puede eliminar usuario en caso de cambiar administrador            
             if Cliente.get_only_id(user.user_id):#si es cliente devuelve el id
-                Cliente.delete(user)
-                return {"message":"Cliente eliminado"},201
-            Usuario.delete(user)
-            return {"message":"Usuario eliminado"},201
+                # Cliente.delete(user)
+                return {"message":"Cliente dado de baja"},201
+            Usuario.update_inhabilitado(user)
+            # Usuario.delete(user)
+            return {"message":"Usuario dado de baja"},201
         elif user_id == verify_user["user_id"]["user_id"]:
             #en caso de el usuario elimiar su cuenta
-            user=Usuario(user_id=user_id)
             if Cliente.get_only_id(user.user_id):
-                Usuario.delete(user)
-                Cliente.delete(user)                
-                return {"message":"Cliente eliminado"},201
+                Usuario.update_inhabilitado(user)
+                # Usuario.delete(user)
+                # Cliente.delete(user)                
+                return {"message":"Cliente dado de baja"},201
             else: 
-                Usuario.delete(user)
-                return {"message":"Usuario eliminado"},201
+                # Usuario.delete(user)
+                Usuario.update_inhabilitado(user)
+                return {"message":"Usuario dado de baja"},201
         else:
             return {"error":"Error al eliminar usuario"},404
