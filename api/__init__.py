@@ -6,6 +6,8 @@ from .routes.user_bp import user_bp
 from .routes.product_bp import product_bp
 from .routes.domi_bp import domi_bp
 from .routes.cart_bp import cart_bp
+from .routes.pedido_bp import pedido_bp
+from .routes.pago_bp import pago_bp
 from .database import DatabaseConnection
 
 def init_app():
@@ -34,5 +36,6 @@ def init_app():
     app.register_blueprint(product_bp, url_prefix = '/products')
     app.register_blueprint(domi_bp, url_prefix = '/addresses')
     app.register_blueprint(cart_bp, url_prefix = '/carts')
-    
+    app.register_blueprint(pedido_bp, url_prefix = '/pedidos')
+    app.register_blueprint(pago_bp, url_prefix = '/pagos')
     return app

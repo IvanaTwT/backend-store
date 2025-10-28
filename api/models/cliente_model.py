@@ -6,8 +6,7 @@ class Cliente:
         self.user_id= kwargs.get('user_id')
         self.nombre_completo = kwargs.get('nombre_completo')
         self.n_celular = kwargs.get('n_celular')
-    
-    @classmethod
+
     def serialize(self):
         return {
             "id_cliente": self.id_cliente,

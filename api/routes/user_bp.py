@@ -13,6 +13,7 @@ user_bp.route('/clients', methods=['GET'])(UserController.ver_clients)
 user_bp.route('/profile', methods=['GET'])(UserController.profile)
 #vista del perfil de un usuario por su id 
 user_bp.route('/profile/<int:user_id>', methods=['GET'])(UserController.profile_by_id)
+user_bp.route('/profile-client/<int:id_cliente>', methods=['GET'])(UserController.profile_by_id_cliente)
 user_bp.route('/logout', methods=['GET'])(UserController.logout)#
 #CRUD de usuario
 user_bp.route("/new_user/", methods=['POST'])(UserController.create_user)

@@ -27,13 +27,19 @@ class UserController:
                 session['username'] = data.get('username')
                 session['admin'] = user_verify.admin
                 session['user_id'] = user_verify.user_id
-                token_user= Token.get_tokens_by_user(user_verify.user_id)
-                # print(type(token_user))
-                if(token_user):
-                    return jsonify({"token": token_user.token}), 200 
+                token_user = Token.get_tokens_by_user(user_verify.user_id)
+
+                # Si existe un token, verificar si sigue siendo válido
+                if token_user:
+                    try:
+                        jwt.decode(token_user.token, Config.SECRET_KEY, algorithms=["HS256"])
+                        return jsonify({"token": token_user.token}), 200
+                    except jwt.ExpiredSignatureError:
+                        new_token = Token.create_token(user_verify.user_id)
+                        return jsonify({"token": new_token}), 200
                 else:
-                    token = Token.create_token(user_verify.user_id)
-                    return jsonify({"token": token}), 200 
+                    new_token = Token.create_token(user_verify.user_id)
+                    return jsonify({"token": new_token}), 200
             else:
                 return jsonify({"error":"Usuario dado de baja"}),200
         else:
@@ -60,7 +66,7 @@ class UserController:
     @classmethod
     def verify_authentication(self):
         auth_credentials = request.authorization
-        print(auth_credentials.token)
+        # print(auth_credentials.token)
         if auth_credentials and auth_credentials.type in ["bearer","token"]:
             try:
                 token = auth_credentials.token
@@ -68,6 +74,8 @@ class UserController:
                 # print(payload){'id_usuario': 4, 'exp': 1737296376}
                 # Verificar el token en la base de datos
                 db_token= Token.get_token(token)
+                # print(payload)
+                print("Token: ",db_token.serialize())
                 if payload:
                     user_id = payload["user_id"]
                     user =Usuario.get_by_id(user_id)
@@ -122,7 +130,24 @@ class UserController:
                     return Cliente.get_client_by_userid(user.user_id) , 200
         else:
             return {"error":"Inicie Session para ver los perfiles"}, 400
-    #Todo lo de arriba todo joya
+        
+    @classmethod
+    def profile_by_id_cliente(cls, id_cliente):
+        """Mostrar perfil de un usuario"""
+        user_verify=UserController.verify_authentication()
+        # print(user_verify)
+        
+        if user_verify is None:
+            return {"message": "Usuario no autenticado"}, 404
+        else:
+            if (id_cliente):
+                cliente= Cliente.get_data_client(id_cliente)
+                if cliente:
+                    return cliente.serialize(), 200
+                return {"message":"Cliente no encontrado"},404
+            else:
+                return {"message":"id_cliente no fue pasado"}, 400
+            
     @classmethod
     def create_user(cls):
         data = request.json
