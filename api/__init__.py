@@ -8,6 +8,7 @@ from .routes.domi_bp import domi_bp
 from .routes.cart_bp import cart_bp
 from .routes.pedido_bp import pedido_bp
 from .routes.pago_bp import pago_bp
+from .routes.valo_bp import valo_bp
 from .database import DatabaseConnection
 
 def init_app():
@@ -38,4 +39,5 @@ def init_app():
     app.register_blueprint(cart_bp, url_prefix = '/carts')
     app.register_blueprint(pedido_bp, url_prefix = '/pedidos')
     app.register_blueprint(pago_bp, url_prefix = '/pagos')
+    app.register_blueprint(valo_bp, url_prefix = '/valoracion')
     return app
