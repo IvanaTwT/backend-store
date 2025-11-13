@@ -85,7 +85,7 @@ class Usuario:
     @classmethod
     def get_users(cls):
         """Traer todos los usuarios"""
-        sql="SELECT user_id, username, email, password, admin FROM ecommerce.usuario"
+        sql="SELECT user_id, username, email, password, admin,inhabilitado  FROM ecommerce.usuario"
         
         result= DatabaseConnection.fetch_all(query=sql)
         
