@@ -13,7 +13,8 @@ class DatabaseConnection:
                 user = cls._config['DATABASE_USERNAME'],
                 port = cls._config['DATABASE_PORT'],
                 password = cls._config['DATABASE_PASSWORD'],
-                database = cls._config['DATABASE_NAME']
+                database = cls._config['DATABASE_NAME'],
+                ssl_ca = cls._config.get("SSL_CA")
             )
         
         return cls._connection

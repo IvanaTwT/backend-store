@@ -2,29 +2,26 @@ from dotenv import dotenv_values
 import os
 
 class Config:
-    config = dotenv_values(".env")
 
-    SECRET_KEY = config['SECRET_KEY']
-    SERVER_NAME = "127.0.0.1:5000"
-    DEBUG = True
+    IS_RAILWAY = os.getenv("RAILWAY_ENVIRONMENT") is not None
 
-    DATABASE_USERNAME = config['DATABASE_USERNAME']
-    DATABASE_PASSWORD = config['DATABASE_PASSWORD']
-    DATABASE_HOST = config['DATABASE_HOST']
-    DATABASE_PORT = config['DATABASE_PORT']
-    DATABASE_NAME = config['DATABASE_NAME']
+    if IS_RAILWAY:
+        env = os.environ
+    else:
+        # Local 
+        env = dotenv_values(".env")
 
-    # Ruta al certificado SSL que descargaste desde Aiven
-    SSL_CA = os.path.join(os.path.dirname(__file__), "certs/ca.pem")
+    SECRET_KEY = env.get("SECRET_KEY")
+    SERVER_NAME = "0.0.0.0:5000"
+    DEBUG = not IS_RAILWAY  # Local da True
 
-    # Cadena de conexión completa para SQLAlchemy + MySQL + SSL
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}"
-        f"@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
-        f"?ssl_ca={SSL_CA}"
-    )
+    DATABASE_USERNAME = env.get('DATABASE_USERNAME')
+    DATABASE_PASSWORD = env.get('DATABASE_PASSWORD')
+    DATABASE_HOST = env.get('DATABASE_HOST')
+    DATABASE_PORT = env.get('DATABASE_PORT')
+    DATABASE_NAME = env.get('DATABASE_NAME')
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SSL_CA = env.get("AIVEN_CA")
 
     TEMPLATE_FOLDER = "templates/"
     STATIC_FOLDER = "static/"
