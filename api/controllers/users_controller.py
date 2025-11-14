@@ -8,7 +8,7 @@ import datetime as dt
 import jwt
 from datetime import datetime, timedelta, UTC
 from ..models.token_model import Token
-
+import mysql.connector
 class UserController:
     """Clase de controlador de usuarios."""
     
@@ -150,17 +150,35 @@ class UserController:
             
     @classmethod
     def create_user(cls):
-        data = request.json
-        #username, email, password, admin
-        user = Usuario(**data)
-        new_id =Usuario.create(user)
-        print("new_id: ",new_id)
-        cliente= Cliente(user_id=new_id,**data)
-        response = Cliente.create_client(cliente)#devuleve el id creado
-        cart= Carrito.create(Carrito(id_cliente=response))
-        if response:
-            return {"message":"Usuario creado con exito"} ,200   
-        return {"error":"Error al crear usuario"},400
+        try:
+            data = request.json
+
+            user = Usuario(**data)
+            new_id = Usuario.create(user) 
+
+            print("new_id: ", new_id)
+
+            cliente = Cliente(user_id=new_id, **data)
+            response = Cliente.create_client(cliente)
+
+            cart = Carrito.create(Carrito(id_cliente=response))
+
+            return {"message": "Usuario creado con éxito"}, 200
+
+        except mysql.connector.errors.IntegrityError as e:
+            if "Duplicate entry" in str(e):
+                return {"error": "El nombre de usuario ya existe"}, 400
+            return {"error": "Error de integridad en la base de datos"}, 500
+
+        except mysql.connector.errors.DatabaseError as e:
+            if "Lock wait timeout" in str(e):
+                return {"error": "La base de datos está ocupada. Intente nuevamente."}, 503
+            return {"error": "Error de base de datos"}, 500
+
+        except Exception as e:
+            print("Unexpected error:", e)
+            return {"error": "Error inesperado en el servidor"}, 500
+
     
     @classmethod
     def update_user(cls,user_id):

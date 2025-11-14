@@ -111,7 +111,7 @@ class Usuario:
         sql="""INSERT INTO usuario(username,email,password) 
         VALUES(%(username)s,%(email)s,%(password)s)
         """
-        c= DatabaseConnection.execute_query(query=sql, params=(usuario.__dict__))
+        c= DatabaseConnection.execute_query(query=sql, params=usuario.__dict__)
         # result= Usuario.get(Usuario(username=usuario.username))
         
         if c.lastrowid:

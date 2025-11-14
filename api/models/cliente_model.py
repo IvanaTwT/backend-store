@@ -94,14 +94,7 @@ class Cliente:
         if cursor:
             return cursor.lastrowid
         return None
-        
-    # @classmethod
-    # def update_campo(cls, id_cliente, campo, valor):
-    #     sql="UPDATE cliente SET "+campo+"="+valor+" WHERE id_cliente="+id_cliente
-        
-    #     DatabaseConnection.execute_query(query=sql,params=(campo,valor,id_cliente))
-        
-        
+
     @classmethod
     def update(cls, cliente):
         id=cliente.id_cliente        

@@ -23,6 +23,7 @@ class DatabaseConnection:
     def execute_query(cls, query, params=None):
         conn = cls._new_connection()     
         cursor = conn.cursor()
+        cursor.execute("SET innodb_lock_wait_timeout = 5")
         cursor.execute(query, params)
         conn.commit()
         cursor.close()
