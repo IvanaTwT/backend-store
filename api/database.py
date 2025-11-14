@@ -1,54 +1,50 @@
 import mysql.connector
 
 class DatabaseConnection:
-    _connection = None
     _config = None
-    _cursor = None
-
-    @classmethod
-    def get_connection(cls):
-        if cls._connection is None:
-            cls._connection = mysql.connector.connect(
-                host = cls._config['DATABASE_HOST'],
-                user = cls._config['DATABASE_USERNAME'],
-                port = cls._config['DATABASE_PORT'],
-                password = cls._config['DATABASE_PASSWORD'],
-                database = cls._config['DATABASE_NAME'],
-                ssl_ca = cls._config.get("SSL_CA")
-            )
-        
-        return cls._connection
 
     @classmethod
     def set_config(cls, config):
         cls._config = config
-    
+
+    @classmethod
+    def _new_connection(cls):
+        """Crear una conexión nueva"""
+        return mysql.connector.connect(
+            host=cls._config['DATABASE_HOST'],
+            user=cls._config['DATABASE_USERNAME'],
+            port=cls._config['DATABASE_PORT'],
+            password=cls._config['DATABASE_PASSWORD'],
+            database=cls._config['DATABASE_NAME'],
+            ssl_ca=cls._config.get("SSL_CA")
+        )
+
     @classmethod
     def execute_query(cls, query, params=None):
-        cursor = cls.get_connection().cursor()
+        conn = cls._new_connection()     
+        cursor = conn.cursor()
         cursor.execute(query, params)
-        cls._connection.commit()
-        
-        return cursor
-    
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return True
+
     @classmethod
     def fetch_all(cls, query, params=None):
-        cursor = cls.get_connection().cursor()
+        conn = cls._new_connection()     
+        cursor = conn.cursor()
         cursor.execute(query, params)
-        return cursor.fetchall()
-    
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return results
+
     @classmethod
     def fetch_one(cls, query, params=None):
-        cursor = cls.get_connection().cursor()
+        conn = cls._new_connection()
+        cursor = conn.cursor()
         cursor.execute(query, params)
-        
-        return cursor.fetchone()
-    
-    @classmethod
-    def close_connection(cls):
-        if cls._cursor is not None:
-            cls._cursor.close()
-        if cls._connection is not None:
-            cls._connection.close()
-            cls._connection = None
-    
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result
