@@ -66,7 +66,7 @@ create table carrito(
     FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) ON DELETE CASCADE
     );
     
-create table carritoXitem(
+create table carritoxitem(
 	id_cartxitem INT AUTO_INCREMENT UNIQUE PRIMARY KEY NOT NULL,
     id_carrito INT NOT NULL,
     id_producto INT NOT NULL,
@@ -86,7 +86,7 @@ create table pedido(
     FOREIGN KEY(id_domicilio) REFERENCES domicilio(id_domicilio) ON DELETE CASCADE
 );
 
-create table pedidoXitem(
+create table pedidoxitem(
 	id_pedidoxitem INT PRIMARY KEY NOT NULL UNIQUE AUTO_INCREMENT,
     id_pedido INT NOT NULL,
     id_producto INT NOT NULL,

@@ -93,7 +93,7 @@ VALUES (1, 'Av. Siempre Viva 742');
 
 INSERT INTO carrito(id_cliente) VALUES (1);
 
-INSERT INTO carritoXitem(id_carrito, id_producto, cantidad)
+INSERT INTO carritoxitem(id_carrito, id_producto, cantidad)
 VALUES 
 (1, 1, 2),
 (1, 2, 1);
@@ -101,7 +101,7 @@ VALUES
 INSERT INTO pedido(id_cliente, id_domicilio , total, estado)
 VALUES (1, 1, 16500, 'pendiente');
 
-INSERT INTO pedidoXitem(id_pedido, id_producto, cantidad, precioxunidad)
+INSERT INTO pedidoxitem(id_pedido, id_producto, cantidad, precioxunidad)
 VALUES
 (1, 1, 2, 5500),
 (1, 2, 1, 5500);
