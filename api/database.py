@@ -8,8 +8,7 @@ class DatabaseConnection:
         cls._config = config
 
     @classmethod
-    def _new_connection(cls):
-        """Crear una conexión nueva"""
+    def get_new_connection(cls):
         return mysql.connector.connect(
             host=cls._config['DATABASE_HOST'],
             user=cls._config['DATABASE_USERNAME'],
@@ -21,31 +20,37 @@ class DatabaseConnection:
 
     @classmethod
     def execute_query(cls, query, params=None):
-        conn = cls._new_connection()     
+        conn = cls.get_new_connection()
         cursor = conn.cursor()
-        cursor.execute("SET innodb_lock_wait_timeout = 5")
-        cursor.execute(query, params)
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return True
 
-    @classmethod
-    def fetch_all(cls, query, params=None):
-        conn = cls._new_connection()     
-        cursor = conn.cursor()
-        cursor.execute(query, params)
-        results = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return results
+        try:
+            cursor.execute(query, params)
+            conn.commit()
+            return cursor
+        except Exception as e:
+            conn.rollback()
+            print("DB ERROR:", e)
+            raise
+        finally:
+            cursor.close()
+            conn.close()
 
     @classmethod
     def fetch_one(cls, query, params=None):
-        conn = cls._new_connection()
+        conn = cls.get_new_connection()
         cursor = conn.cursor()
         cursor.execute(query, params)
         result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result
+
+    @classmethod
+    def fetch_all(cls, query, params=None):
+        conn = cls.get_new_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        result = cursor.fetchall()
         cursor.close()
         conn.close()
         return result
