@@ -29,8 +29,8 @@ class PagoController:
             pedido= Pedido.get_by_id(id_pedido)
             if pedido:
                 pago= Pago.get_by_pedido_id(id_pedido)
-                
-                return jsonify({str(pedido["id_cliente"]):[pago,pedido]}),200
+                comprobante= Comprobante.get_by_pago_id(pago["id_pago"])
+                return jsonify({"pago":pago,"comprobante":comprobante.serialize()}),200
             return {"message":"Pago no encontrado porque el id del pedido no existe"}
         return {"message":"Pago no encontrado"},404
     
