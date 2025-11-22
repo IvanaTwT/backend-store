@@ -110,7 +110,7 @@ INSERT INTO pago(id_pedido, metodo, monto, estado)
 VALUES (1, 'mercado pago', 16500, 'pendiente');
 
 INSERT INTO comprobante(id_pago, n_comprobante)
-VALUES (1, 'F-0000-000001');
+VALUES (1, 'A-0000-000001');
 
 INSERT INTO valoracion(id_cliente,id_producto,calificacion,estrellas,comentario)
 VALUES(1,1,'Muy Bueno',4,'Muy buena calidad y diseño');

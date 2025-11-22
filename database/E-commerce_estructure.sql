@@ -103,7 +103,7 @@ create table pago(
     monto FLOAT NOT NULL,
     estado ENUM('pendiente','exitoso','fallido'),
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(id_pedido) REFERENCES pedido(id_pedido) ON DELETE CASCADE
+    FOREIGN KEY(id_pedido) REFERENCES pedido(id_pedido) ON DELETE RESTRICT
 );
 
 create table comprobante(
@@ -111,7 +111,7 @@ create table comprobante(
     id_pago INT NOT NULL,
     n_comprobante VARCHAR(300) NOT NULL,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(id_pago) REFERENCES pago(id_pago) ON DELETE CASCADE
+    FOREIGN KEY(id_pago) REFERENCES pago(id_pago) ON DELETE RESTRICT
 );    
 
 create table valoracion(
