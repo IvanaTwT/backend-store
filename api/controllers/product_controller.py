@@ -108,7 +108,7 @@ class ProductController:
             product_old=Producto.get(prod.id_producto)
             #por si el admin no quiere cambiar la categoria si no su contenido
             print("product old: ",product_old)
-            if not product_old and product_old.id_categoria==cate.id_categoria:
+            if product_old and product_old.id_categoria == cate.id_categoria:
                 if cate.nombre or cate.marca or cate.descripcion:
                     Categoria.update(cate)                        
                 if prod:
