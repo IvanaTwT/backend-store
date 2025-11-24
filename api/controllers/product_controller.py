@@ -94,43 +94,55 @@ class ProductController:
             #         return {"message":"Producto creado con exito"},200
             return {"message":"Error al crear producto"},400
         return {"error":"No tienes permisos para crear productos"},403
+    
     @classmethod
     def update_product(cls):
         data=request.json
         print("Update product: ",data)
+         # print("DATA :",user_data)
         user_data = UserController.verify_authentication()
-        # print("DATA :",user_data)
-        if user_data and "admin" in user_data:#es administrador
-            prod=Producto(**data)
-            print("product: ",prod.serialize())
-            cate=Categoria(**data)
-            print("categoria: ",cate.serialize())
-            product_old=Producto.get(prod.id_producto)
-            #por si el admin no quiere cambiar la categoria si no su contenido
-            print("product old: ",product_old)
-            if product_old and product_old.id_categoria == cate.id_categoria:
-                if cate.nombre or cate.marca or cate.descripcion:
-                    Categoria.update(cate)                        
-                if prod:
-                    Producto.update(prod)
-                return {"message":"Los datos del producto fueron actualizados correctamente"},200
+        if user_data and "admin" in user_data: 
+            categoria = data.get("id_categoria")
+            # puede venir como dict (2ves) o número (1ves)
+            if isinstance(categoria, dict):
+                cate_id = categoria.get("id_categoria")
             else:
-                #en caso de que el admin eliga otra categoria que este almacenada
-                get_cate=Categoria.get(cate.id_categoria)
-                if cate.nombre or cate.marca or cate.descripcion:
-                    Categoria.update(cate)  
-                prod.id_categoria=get_cate.id_categoria
+                cate_id = categoria
+
+            data["id_categoria"] = cate_id
+            
+            prod = Producto(**data)
+            print("product: ", prod.serialize())
+            cate = Categoria(**{"id_categoria": cate_id})
+            print("categoria: ", cate.serialize())
+            product_old = Producto.get(prod.id_producto)
+            print("product old: ", product_old)
+
+            # misma categoría
+            if product_old and product_old.id_categoria == cate.id_categoria:
+
+                if isinstance(categoria, dict):
+                    if categoria.get("nombre") or categoria.get("marca") or categoria.get("descripcion"):
+                        Categoria.update(Categoria(**categoria))
                 Producto.update(prod)
-                return {"message":"Los datos del producto fueron actualizados correctamente"},200
-        return {"error":"No tienes permisos para crear productos"},403
-        
-                    #por si no esta la categoria
-                    # new_id=Categoria.create(cate)
-                    # if new_id:
-                    #     prod.id_categoria=new_id
-                    #     Producto.update(prod)
-                    #     return {"message":"Los datos del producto fueron actualizados correctamente"},200
-                    # else:
+                return {"message": "Los datos del producto fueron actualizados correctamente"}, 200
+
+            # cambiar categoría
+            else:
+                get_cate = Categoria.get(cate_id)
+                if not get_cate:
+                    return {"error": "La categoría no existe"}, 400
+                            
+                if isinstance(categoria, dict):
+                    if categoria.get("nombre") or categoria.get("marca") or categoria.get("descripcion"):
+                        Categoria.update(Categoria(**categoria))
+
+                prod.id_categoria = cate_id
+                Producto.update(prod)
+                return {"message": "Los datos del producto fueron actualizados correctamente"}, 200
+            
+        return {"error": "No tienes permisos para crear productos"}, 403
+
     @classmethod
     def delete_product(cls):        
         try:
